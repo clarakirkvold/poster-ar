@@ -2,12 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MindAR Poster AR - 3 Markers Stabilized</title>
+  <title>MindAR Poster AR - 3 Markers Smooth</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- A-Frame & MindAR -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <script>
+    // Component to smooth small marker jitters
+    AFRAME.registerComponent('smooth-movement', {
+      schema: { factor: {type: 'number', default: 0.1} },
+      init: function () {
+        this.prevPos = new THREE.Vector3();
+        this.prevRot = new THREE.Euler();
+      },
+      tick: function () {
+        const obj = this.el.object3D;
+        obj.position.lerp(this.prevPos, this.data.factor);
+        obj.rotation.x += (this.prevRot.x - obj.rotation.x) * this.data.factor;
+        obj.rotation.y += (this.prevRot.y - obj.rotation.y) * this.data.factor;
+        obj.rotation.z += (this.prevRot.z - obj.rotation.z) * this.data.factor;
+
+        // Update prev values
+        this.prevPos.copy(obj.position);
+        this.prevRot.copy(obj.rotation);
+      }
+    });
+  </script>
 
   <style>
     body { margin: 0; overflow: hidden; }
@@ -21,32 +43,27 @@
            vr-mode-ui="enabled: false"
            device-orientation-permission-ui="enabled: false">
 
-    <!-- Assets -->
     <a-assets>
       <video id="video1" src="./movies/video1.mp4" loop muted playsinline crossorigin="anonymous"></video>
       <video id="video2" src="./movies/video2.mp4" loop muted playsinline crossorigin="anonymous"></video>
       <video id="video3" src="./movies/video3.mp4" loop muted playsinline crossorigin="anonymous"></video>
     </a-assets>
 
-    <!-- Camera -->
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <!-- Marker entities (required for detection) -->
-    <a-entity mindar-image-target="targetIndex: 0" id="target1"></a-entity>
-    <a-entity mindar-image-target="targetIndex: 1" id="target2"></a-entity>
-    <a-entity mindar-image-target="targetIndex: 2" id="target3"></a-entity>
-
-    <!-- Stabilized video planes (detached from markers) -->
-    <a-entity id="plane1" position="0 1 -2" rotation="0 0 0">
-      <a-video src="#video1" width="2" height="1.124" autoplay loop muted playsinline></a-video>
+    <!-- Marker 1 -->
+    <a-entity mindar-image-target="targetIndex: 0" id="target1">
+      <a-video src="#video1" width="2" height="1.124" position="0 0 0" smooth-movement autoplay loop muted playsinline></a-video>
     </a-entity>
 
-    <a-entity id="plane2" position="2 1 -2" rotation="0 0 0">
-      <a-video src="#video2" width="2" height="1.124" autoplay loop muted playsinline></a-video>
+    <!-- Marker 2 -->
+    <a-entity mindar-image-target="targetIndex: 1" id="target2">
+      <a-video src="#video2" width="2" height="1.124" position="0 0 0" smooth-movement autoplay loop muted playsinline></a-video>
     </a-entity>
 
-    <a-entity id="plane3" position="-2 1 -2" rotation="0 0 0">
-      <a-video src="#video3" width="2" height="1.124" autoplay loop muted playsinline></a-video>
+    <!-- Marker 3 -->
+    <a-entity mindar-image-target="targetIndex: 2" id="target3">
+      <a-video src="#video3" width="2" height="1.124" position="0 0 0" smooth-movement autoplay loop muted playsinline></a-video>
     </a-entity>
 
   </a-scene>
@@ -70,9 +87,9 @@
       v.playsInline = true;
     });
 
-    // Play/pause videos based on marker detection
-    targets.forEach((t, index) => {
-      const vid = videos[index];
+    // Play/pause videos on marker detection
+    targets.forEach((t, i) => {
+      const vid = videos[i];
       t.addEventListener("targetFound", () => {
         vid.play().catch(err => console.log("Video play failed:", err));
       });
