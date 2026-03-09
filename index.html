@@ -4,20 +4,25 @@
   <meta charset="UTF-8">
   <title>MindAR Poster AR</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <!-- A-Frame & MindAR -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  
+  <style>
+    body { margin: 0; overflow: hidden; }
+  </style>
 </head>
 
-<body style="margin:0; overflow:hidden;">
+<body>
   <a-scene mindar-image="imageTargetSrc: ./markers/targets.mind;"
-           color-space="sRGB" 
-           renderer="colorManagement: true, physicallyCorrectLights" 
-           vr-mode-ui="enabled: false" 
+           color-space="sRGB"
+           renderer="colorManagement: true, physicallyCorrectLights"
+           vr-mode-ui="enabled: false"
            device-orientation-permission-ui="enabled: false">
 
     <!-- Assets -->
     <a-assets>
-      <!-- Video asset -->
       <video id="posterVideo" src="./movies/video.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
     </a-assets>
 
@@ -25,12 +30,34 @@
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
     <!-- MindAR target -->
-    <a-entity mindar-image-target="targetIndex: 0">
-      <!-- Video on plane -->
-      <a-plane src="#posterVideo" position="0 0 0" rotation="0 0 0" width="1" height="0.562">
-      </a-plane>
+    <a-entity mindar-image-target="targetIndex: 0" id="posterTarget">
+      <a-plane src="#posterVideo" position="0 0 0" rotation="0 0 0" width="1" height="0.562"></a-plane>
     </a-entity>
-
   </a-scene>
+
+  <!-- Script to play video on target detection -->
+  <script>
+    const video = document.querySelector("#posterVideo");
+    const target = document.querySelector("#posterTarget");
+
+    // Ensure mobile playback compatibility
+    video.muted = true;
+    video.playsInline = true;
+
+    // Play video when target is detected
+    target.addEventListener("targetFound", () => {
+      video.play().catch(err => console.log("Video play error:", err));
+    });
+
+    // Pause video when target is lost
+    target.addEventListener("targetLost", () => {
+      video.pause();
+    });
+
+    // Optional: play video on first user tap (some mobile browsers require interaction)
+    document.body.addEventListener("click", () => {
+      video.play().catch(err => console.log("Video play error:", err));
+    }, { once: true });
+  </script>
 </body>
 </html>
