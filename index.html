@@ -1,24 +1,45 @@
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  </head>
-  <body>
-    <a-scene mindar-image="imageTargetSrc: ./markers/targets.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
-      <a-assets>
-	<img id="card" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png" />
-	<a-asset-item id="avatarModel" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/softmind/scene.gltf"></a-asset-item>
-      </a-assets>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MindAR Poster AR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+</head>
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+<body style="margin:0; overflow:hidden;">
+  <a-scene mindar-image="imageTargetSrc: ./markers/targets.mind;"
+           color-space="sRGB" 
+           renderer="colorManagement: true, physicallyCorrectLights" 
+           vr-mode-ui="enabled: false" 
+           device-orientation-permission-ui="enabled: false">
 
-      <a-entity mindar-image-target="targetIndex: 0">
-        <a-plane src="#card" position="0 0 0" height="0.552" width="1" rotation="0 0 0"></a-plane>
-        <a-gltf-model rotation="0 0 0 " position="0 0 0.1" scale="0.005 0.005 0.005" src="#avatarModel"
-          animation="property: position; to: 0 0.1 0.1; dur: 1000; easing: easeInOutQuad; loop: true; dir: alternate"
-        >
-      </a-entity>
-    </a-scene>
-  </body>
+    <!-- Assets -->
+    <a-assets>
+      <!-- GLTF model -->
+      <a-asset-item id="avatarModel" src="./models/scene.gltf"></a-asset-item>
+
+      <!-- Video asset -->
+      <video id="posterVideo" src="./videos/video.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
+    </a-assets>
+
+    <!-- Camera -->
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <!-- MindAR target -->
+    <a-entity mindar-image-target="targetIndex: 0">
+      
+      <!-- GLTF model on target -->
+      <a-gltf-model src="#avatarModel" position="0 0 0" rotation="0 0 0" scale="0.005 0.005 0.005"
+                    animation="property: position; to: 0 0.1 0.1; dur: 1000; easing: easeInOutQuad; loop: true; dir: alternate">
+      </a-gltf-model>
+
+      <!-- Video on plane in front of model -->
+      <a-plane src="#posterVideo" position="0 0 0.2" rotation="0 0 0" width="1" height="0.562">
+      </a-plane>
+
+    </a-entity>
+  </a-scene>
+</body>
 </html>
