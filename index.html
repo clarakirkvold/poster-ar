@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MindAR Poster AR</title>
+  <title>MindAR Poster AR - 3 Markers</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- A-Frame & MindAR -->
@@ -23,47 +23,64 @@
 
     <!-- Assets -->
     <a-assets>
-      <!-- Video asset -->
-      <video id="posterVideo" src="./movies/video.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
+      <!-- Video assets (replace paths with your files) -->
+      <video id="video1" src="./movies/video1.mp4" loop muted playsinline crossorigin="anonymous"></video>
+      <video id="video2" src="./movies/video2.mp4" loop muted playsinline crossorigin="anonymous"></video>
+      <video id="video3" src="./movies/video3.mp4" loop muted playsinline crossorigin="anonymous"></video>
     </a-assets>
 
     <!-- Camera -->
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <!-- MindAR target -->
-    <a-entity mindar-image-target="targetIndex: 0" id="posterTarget">
-      <!-- Use <a-video> for better video playback -->
-      <a-video id="videoPlane" src="#posterVideo"
-               width="1" height="0.562"
-               position="0 0 0" rotation="0 0 0"
-               autoplay loop muted playsinline>
-      </a-video>
+    <!-- Marker 1 -->
+    <a-entity mindar-image-target="targetIndex: 0" id="target1">
+      <a-video src="#video1" width="1" height="0.562" position="0 0 0" rotation="0 0 0"
+               autoplay loop muted playsinline></a-video>
+    </a-entity>
+
+    <!-- Marker 2 -->
+    <a-entity mindar-image-target="targetIndex: 1" id="target2">
+      <a-video src="#video2" width="1" height="0.562" position="0 0 0" rotation="0 0 0"
+               autoplay loop muted playsinline></a-video>
+    </a-entity>
+
+    <!-- Marker 3 -->
+    <a-entity mindar-image-target="targetIndex: 2" id="target3">
+      <a-video src="#video3" width="1" height="0.562" position="0 0 0" rotation="0 0 0"
+               autoplay loop muted playsinline></a-video>
     </a-entity>
 
   </a-scene>
 
-  <!-- Script to ensure mobile playback -->
+  <!-- Script for automatic video playback on target detection -->
   <script>
-    const video = document.querySelector("#posterVideo");
-    const target = document.querySelector("#posterTarget");
+    const videos = [
+      document.querySelector("#video1"),
+      document.querySelector("#video2"),
+      document.querySelector("#video3")
+    ];
 
-    // Ensure mobile-friendly playback
-    video.muted = true;
-    video.playsInline = true;
+    const targets = [
+      document.querySelector("#target1"),
+      document.querySelector("#target2"),
+      document.querySelector("#target3")
+    ];
 
-    // Attempt to play video on first user interaction (some browsers require this)
-    document.body.addEventListener("click", () => {
-      video.play().catch(err => console.log("Video play failed on click:", err));
-    }, { once: true });
-
-    // Play video when target is detected
-    target.addEventListener("targetFound", () => {
-      video.play().catch(err => console.log("Video play failed on targetFound:", err));
+    // Ensure videos are muted and playsInline for mobile autoplay
+    videos.forEach(v => {
+      v.muted = true;
+      v.playsInline = true;
     });
 
-    // Pause video when target is lost
-    target.addEventListener("targetLost", () => {
-      video.pause();
+    // Play/pause videos automatically on target detection
+    targets.forEach((t, index) => {
+      const vid = videos[index];
+      t.addEventListener("targetFound", () => {
+        vid.play().catch(err => console.log("Video play failed on targetFound:", err));
+      });
+      t.addEventListener("targetLost", () => {
+        vid.pause();
+      });
     });
   </script>
 </body>
