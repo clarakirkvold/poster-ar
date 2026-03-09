@@ -2,15 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MindAR Poster AR - 3 Markers Smooth</title>
+  <title>PHuN Poster AR</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- A-Frame & MindAR -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <script>
-    // Component to smooth small marker jitters
     AFRAME.registerComponent('smooth-movement', {
       schema: { factor: {type: 'number', default: 0.1} },
       init: function () {
@@ -24,7 +22,6 @@
         obj.rotation.y += (this.prevRot.y - obj.rotation.y) * this.data.factor;
         obj.rotation.z += (this.prevRot.z - obj.rotation.z) * this.data.factor;
 
-        // Update prev values
         this.prevPos.copy(obj.position);
         this.prevRot.copy(obj.rotation);
       }
@@ -81,13 +78,11 @@
       document.querySelector("#target3")
     ];
 
-    // Ensure mobile-friendly playback
     videos.forEach(v => {
       v.muted = true;
       v.playsInline = true;
     });
 
-    // Play/pause videos on marker detection
     targets.forEach((t, i) => {
       const vid = videos[i];
       t.addEventListener("targetFound", () => {
