@@ -17,11 +17,8 @@
 
     <!-- Assets -->
     <a-assets>
-      <!-- GLTF model -->
-      <a-asset-item id="avatarModel" src="./models/scene.gltf"></a-asset-item>
-
       <!-- Video asset -->
-      <video id="posterVideo" src="./videos/video.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
+      <video id="posterVideo" src="./movies/video.mp4" autoplay loop muted playsinline crossorigin="anonymous"></video>
     </a-assets>
 
     <!-- Camera -->
@@ -29,17 +26,11 @@
 
     <!-- MindAR target -->
     <a-entity mindar-image-target="targetIndex: 0">
-      
-      <!-- GLTF model on target -->
-      <a-gltf-model src="#avatarModel" position="0 0 0" rotation="0 0 0" scale="0.005 0.005 0.005"
-                    animation="property: position; to: 0 0.1 0.1; dur: 1000; easing: easeInOutQuad; loop: true; dir: alternate">
-      </a-gltf-model>
-
-      <!-- Video on plane in front of model -->
-      <a-plane src="#posterVideo" position="0 0 0.2" rotation="0 0 0" width="1" height="0.562">
+      <!-- Video on plane -->
+      <a-plane src="#posterVideo" position="0 0 0" rotation="0 0 0" width="1" height="0.562">
       </a-plane>
-
     </a-entity>
+
   </a-scene>
 </body>
 </html>
