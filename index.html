@@ -1,97 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>PHuN Poster AR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<title>PHuN Poster AR</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-  <script>
-    AFRAME.registerComponent('smooth-movement', {
-      schema: { factor: {type: 'number', default: 0.1} },
-      init: function () {
-        this.prevPos = new THREE.Vector3();
-        this.prevRot = new THREE.Euler();
-      },
-      tick: function () {
-        const obj = this.el.object3D;
-        obj.position.lerp(this.prevPos, this.data.factor);
-        obj.rotation.x += (this.prevRot.x - obj.rotation.x) * this.data.factor;
-        obj.rotation.y += (this.prevRot.y - obj.rotation.y) * this.data.factor;
-        obj.rotation.z += (this.prevRot.z - obj.rotation.z) * this.data.factor;
+<style>
+body { margin:0; overflow:hidden; }
+</style>
 
-        this.prevPos.copy(obj.position);
-        this.prevRot.copy(obj.rotation);
-      }
-    });
-  </script>
+<script>
+AFRAME.registerComponent("stabilize", {
+  schema: { amount: {default: 0.85} }, // higher = more stable
 
-  <style>
-    body { margin: 0; overflow: hidden; }
-  </style>
+  init() {
+    this.lastPosition = new THREE.Vector3()
+    this.lastRotation = new THREE.Euler()
+  },
+
+  tick() {
+
+    const obj = this.el.object3D
+
+    this.lastPosition.lerp(obj.position, 1 - this.data.amount)
+    obj.position.copy(this.lastPosition)
+
+    this.lastRotation.x += (obj.rotation.x - this.lastRotation.x) * (1 - this.data.amount)
+    this.lastRotation.y += (obj.rotation.y - this.lastRotation.y) * (1 - this.data.amount)
+    this.lastRotation.z += (obj.rotation.z - this.lastRotation.z) * (1 - this.data.amount)
+
+    obj.rotation.copy(this.lastRotation)
+  }
+})
+</script>
+
 </head>
 
 <body>
-  <a-scene mindar-image="imageTargetSrc: ./markers/targets.mind;"
-           color-space="sRGB"
-           renderer="colorManagement: true, physicallyCorrectLights"
-           vr-mode-ui="enabled: false"
-           device-orientation-permission-ui="enabled: false">
 
-    <a-assets>
-      <video id="video1" src="./movies/video1.mp4" loop muted playsinline crossorigin="anonymous"></video>
-      <video id="video2" src="./movies/video2.mp4" loop muted playsinline crossorigin="anonymous"></video>
-      <video id="video3" src="./movies/video3.mp4" loop muted playsinline crossorigin="anonymous"></video>
-    </a-assets>
+<a-scene
+mindar-image="imageTargetSrc: ./markers/targets.mind;"
+color-space="sRGB"
+renderer="colorManagement:true, physicallyCorrectLights"
+vr-mode-ui="enabled:false"
+device-orientation-permission-ui="enabled:false">
 
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+<a-assets>
 
-    <!-- Marker 1 -->
-    <a-entity mindar-image-target="targetIndex: 0" id="target1">
-      <a-video src="#video1" width="2" height="1.124" position="0 0 0" smooth-movement autoplay loop muted playsinline></a-video>
-    </a-entity>
+<video id="video1" src="./movies/video1.mp4" loop muted playsinline crossorigin="anonymous"></video>
 
-    <!-- Marker 2 -->
-    <a-entity mindar-image-target="targetIndex: 1" id="target2">
-      <a-video src="#video2" width="2" height="1.124" position="0 0 0" smooth-movement autoplay loop muted playsinline></a-video>
-    </a-entity>
+<video id="video2" src="./movies/video2.mp4" loop muted playsinline crossorigin="anonymous"></video>
 
-    <!-- Marker 3 -->
-    <a-entity mindar-image-target="targetIndex: 2" id="target3">
-      <a-video src="#video3" width="2" height="1.124" position="0 0 0" smooth-movement autoplay loop muted playsinline></a-video>
-    </a-entity>
+<video id="video3" src="./movies/video3.mp4" loop muted playsinline crossorigin="anonymous"></video>
 
-  </a-scene>
+</a-assets>
 
-  <script>
-    const videos = [
-      document.querySelector("#video1"),
-      document.querySelector("#video2"),
-      document.querySelector("#video3")
-    ];
+<a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
-    const targets = [
-      document.querySelector("#target1"),
-      document.querySelector("#target2"),
-      document.querySelector("#target3")
-    ];
+<!-- Marker 1 -->
+<a-entity mindar-image-target="targetIndex:0" id="target1">
 
-    videos.forEach(v => {
-      v.muted = true;
-      v.playsInline = true;
-    });
+<a-video
+src="#video1"
+width="2"
+height="1.124"
+position="0 0 0"
+stabilize
+autoplay
+loop
+muted
+playsinline>
+</a-video>
 
-    targets.forEach((t, i) => {
-      const vid = videos[i];
-      t.addEventListener("targetFound", () => {
-        vid.play().catch(err => console.log("Video play failed:", err));
-      });
-      t.addEventListener("targetLost", () => {
-        vid.pause();
-      });
-    });
-  </script>
+</a-entity>
+
+<!-- Marker 2 -->
+<a-entity mindar-image-target="targetIndex:1" id="target2">
+
+<a-video
+src="#video2"
+width="2"
+height="1.124"
+position="0 0 0"
+stabilize
+autoplay
+loop
+muted
+playsinline>
+</a-video>
+
+</a-entity>
+
+<!-- Marker 3 -->
+<a-entity mindar-image-target="targetIndex:2" id="target3">
+
+<a-video
+src="#video3"
+width="2"
+height="1.124"
+position="0 0 0"
+stabilize
+autoplay
+loop
+muted
+playsinline>
+</a-video>
+
+</a-entity>
+
+</a-scene>
+
+<script>
+
+const videos = [
+document.querySelector("#video1"),
+document.querySelector("#video2"),
+document.querySelector("#video3")
+]
+
+const targets = [
+document.querySelector("#target1"),
+document.querySelector("#target2"),
+document.querySelector("#target3")
+]
+
+videos.forEach(v=>{
+v.muted = true
+v.playsInline = true
+})
+
+targets.forEach((t,i)=>{
+
+const vid = videos[i]
+
+t.addEventListener("targetFound",()=>{
+vid.play().catch(()=>{})
+})
+
+t.addEventListener("targetLost",()=>{
+vid.pause()
+})
+
+})
+
+</script>
+
 </body>
 </html>
